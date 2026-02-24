@@ -63,6 +63,21 @@ class MockKmsAsyncClient(clock: Clock) extends LazyLogging {
 
   def serviceName(): String = KmsAsyncClient.SERVICE_NAME
 
+  // Embed keyId in ciphertext so decrypt can find the key without an explicit keyId,
+  // mimicking how real KMS embeds key metadata in the ciphertext blob.
+  // Format: [36-byte UUID keyId][encrypted bytes]
+  private val KeyIdLen = 36
+
+  private def wrapCiphertext(keyId: String, encrypted: Array[Byte]): Array[Byte] = {
+    keyId.getBytes("UTF-8") ++ encrypted
+  }
+
+  private def unwrapCiphertext(blob: Array[Byte]): (String, Array[Byte]) = {
+    val keyId = new String(blob, 0, KeyIdLen, "UTF-8")
+    val encrypted = blob.drop(KeyIdLen)
+    (keyId, encrypted)
+  }
+
   private def resolveKeyId(keyId: String): String = {
     if (keyId.startsWith("alias/")) aliases.get(keyId)
     else keyId
@@ -141,10 +156,10 @@ class MockKmsAsyncClient(clock: Clock) extends LazyLogging {
         val key = getKey(request.keyId)
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         cipher.init(Cipher.ENCRYPT_MODE, key.secretKey)
-        val ciphertext = cipher.doFinal(request.plaintext.asByteArray())
+        val encrypted = cipher.doFinal(request.plaintext.asByteArray())
         EncryptResponse.builder()
           .keyId(key.keyId)
-          .ciphertextBlob(SdkBytes.fromByteArray(ciphertext))
+          .ciphertextBlob(SdkBytes.fromByteArray(wrapCiphertext(key.keyId, encrypted)))
           .build()
       }
     })
@@ -153,10 +168,11 @@ class MockKmsAsyncClient(clock: Clock) extends LazyLogging {
   def decrypt(request: DecryptRequest): CompletableFuture[DecryptResponse] = {
     CompletableFuture.supplyAsync(new Supplier[DecryptResponse]() {
       override def get(): DecryptResponse = {
-        val key = getKey(request.keyId)
+        val (embeddedKeyId, encrypted) = unwrapCiphertext(request.ciphertextBlob.asByteArray())
+        val key = getKey(if (request.keyId != null) request.keyId else embeddedKeyId)
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, key.secretKey)
-        val plaintext = cipher.doFinal(request.ciphertextBlob.asByteArray())
+        val plaintext = cipher.doFinal(encrypted)
         DecryptResponse.builder()
           .keyId(key.keyId)
           .plaintext(SdkBytes.fromByteArray(plaintext))
@@ -177,11 +193,11 @@ class MockKmsAsyncClient(clock: Clock) extends LazyLogging {
         val plaintext = dataKey.getEncoded
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         cipher.init(Cipher.ENCRYPT_MODE, key.secretKey)
-        val ciphertext = cipher.doFinal(plaintext)
+        val encrypted = cipher.doFinal(plaintext)
         GenerateDataKeyResponse.builder()
           .keyId(key.keyId)
           .plaintext(SdkBytes.fromByteArray(plaintext))
-          .ciphertextBlob(SdkBytes.fromByteArray(ciphertext))
+          .ciphertextBlob(SdkBytes.fromByteArray(wrapCiphertext(key.keyId, encrypted)))
           .build()
       }
     })
