@@ -50,11 +50,11 @@ object MockUtil {
     else if (attr.n != null) "N"
     else if (attr.bool != null) "BOOL"
     else if (attr.b != null) "B"
-    else if (!attr.ss.isInstanceOf[SdkAutoConstructList[_]]) "SS"
-    else if (!attr.ns.isInstanceOf[SdkAutoConstructList[_]]) "NS"
-    else if (!attr.bs.isInstanceOf[SdkAutoConstructList[_]]) "BS"
-    else if (!attr.l.isInstanceOf[SdkAutoConstructList[_]]) "L"
-    else if (!attr.m.isInstanceOf[SdkAutoConstructMap[_,_]]) "M"
+    else if (!attr.ss.isInstanceOf[SdkAutoConstructList[?]]) "SS"
+    else if (!attr.ns.isInstanceOf[SdkAutoConstructList[?]]) "NS"
+    else if (!attr.bs.isInstanceOf[SdkAutoConstructList[?]]) "BS"
+    else if (!attr.l.isInstanceOf[SdkAutoConstructList[?]]) "L"
+    else if (!attr.m.isInstanceOf[SdkAutoConstructMap[?,?]]) "M"
     else throw new IllegalArgumentException(s"Unknown attribute type [${attr}]")
   }
 

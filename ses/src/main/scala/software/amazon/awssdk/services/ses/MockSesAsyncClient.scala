@@ -19,8 +19,8 @@ object MockSesAsyncClient {
 
       override def invoke(proxy: Object, method: Method, args: Array[Any]): Any = {
         try {
-          val m = mock.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes():_*)
-          if (args == null) m.invoke(mock) else m.invoke(mock, args:_*)
+          val m = mock.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes()*)
+          if (args == null) m.invoke(mock) else m.invoke(mock, args*)
         }
         catch {
           case e: NoSuchMethodException => {

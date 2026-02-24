@@ -28,8 +28,8 @@ object MockS3AsyncClient extends LazyLogging {
 
       override def invoke(proxy: Object, method: Method, args: Array[Any]): Any = {
         try {
-          val m = mock.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes():_*)
-          if (args == null) m.invoke(mock) else m.invoke(mock, args:_*)
+          val m = mock.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes()*)
+          if (args == null) m.invoke(mock) else m.invoke(mock, args*)
         }
         catch {
           case e: NoSuchMethodException => {
@@ -128,7 +128,7 @@ class MockS3AsyncClient(logger: Logger, clock: Clock) {
             val latch = new CountDownLatch(1)
             var pos = 0
             requestBody.subscribe(new org.reactivestreams.Subscriber[ByteBuffer] {
-              var subscription: org.reactivestreams.Subscription = _
+              var subscription: org.reactivestreams.Subscription = scala.compiletime.uninitialized
               override def onSubscribe(s: org.reactivestreams.Subscription): Unit = {
                 subscription = s
                 s.request(Long.MaxValue)
