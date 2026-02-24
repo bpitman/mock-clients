@@ -28,13 +28,13 @@ jobs:
       - uses: sbt/setup-sbt@v1
 
       - name: Compile
-        run: sbt compile
+        run: sbt +compile
 
       - name: Test
-        run: sbt test
+        run: sbt +test
 
       - name: Package
-        run: sbt package
+        run: sbt +package
 
       - uses: actions/upload-artifact@v4
         with:
