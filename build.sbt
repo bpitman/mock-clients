@@ -17,8 +17,8 @@ ThisBuild / version := {
     fmt.format(new java.util.Date())
   }
   val base = lastTag.getOrElse("0.0.0")
-  if (branch == "main" && commitTag.isDefined) commitTag.get
-  else if (branch == "main") s"${base}-${timestamp}-${commit}"
+  if (commitTag.isDefined) commitTag.get
+  else if (branch == "main" || branch == "HEAD") s"${base}-${timestamp}-${commit}"
   else s"${base}-${branch}-${timestamp}-${commit}"
 }
 
