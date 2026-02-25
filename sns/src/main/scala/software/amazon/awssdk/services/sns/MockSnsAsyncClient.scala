@@ -7,7 +7,6 @@ import java.time.Clock
 import java.util.concurrent.CompletableFuture
 import java.util.function.Supplier
 
-import scala.compiletime.uninitialized
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -40,8 +39,8 @@ class MockSnsAsyncClient(clock: Clock) extends LazyLogging {
 
   val counter = new java.util.concurrent.atomic.AtomicInteger(0)
 
-  @volatile var lastPublishedMessage: String = uninitialized
-  @volatile var lastPublishedPhoneNumber: String = uninitialized
+  @volatile var lastPublishedMessage: String = null
+  @volatile var lastPublishedPhoneNumber: String = null
 
   def close(): Unit = {}
 
