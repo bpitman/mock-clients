@@ -68,6 +68,14 @@ lazy val commonSettings = Seq(
     Dependencies.munit          % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
+  publishMavenStyle := true,
+  publishTo := Some("GitHub Packages" at "https://maven.pkg.github.com/bpitman/mock-clients"),
+  credentials += Credentials(
+    "GitHub Package Registry",
+    "maven.pkg.github.com",
+    sys.env.getOrElse("GITHUB_ACTOR", ""),
+    sys.env.getOrElse("GITHUB_TOKEN", "")
+  ),
   noSnapshotDeps := {
     if (!isSnapshot.value) {
       val snapshots = libraryDependencies.value.filter(_.revision.endsWith("-SNAPSHOT"))
