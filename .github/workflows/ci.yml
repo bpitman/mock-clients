@@ -51,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
-        run: sbt +publish
+        run: sbt '; +dynamodb/publish; +kms/publish; +ses/publish; +sns/publish; +s3/publish; +redis/publish'
 
       - name: Create release and upload assets
         if: startsWith(github.ref, 'refs/tags/')
