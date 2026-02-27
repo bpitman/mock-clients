@@ -68,7 +68,6 @@ lazy val commonSettings = Seq(
   testFrameworks += new TestFramework("munit.Framework"),
   publishMavenStyle := true,
   publishTo := Some("GitHub Packages" at "https://maven.pkg.github.com/bpitman/mock-clients"),
-  publishConfiguration := publishConfiguration.value.withOverwrite(true),
   credentials += Credentials(
     "GitHub Package Registry",
     "maven.pkg.github.com",
